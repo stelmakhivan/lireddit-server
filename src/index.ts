@@ -1,3 +1,5 @@
+import 'reflect-metadata'
+import { PostResolver } from './resolvers/post'
 import { MikroORM } from '@mikro-orm/core'
 import express from 'express'
 import { ApolloServer } from 'apollo-server-express'
@@ -15,9 +17,11 @@ const main = async () => {
   const app = express()
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [HelloResolver],
-      validate: false
-    })
+      resolvers: [HelloResolver, PostResolver],
+      validate: false,
+      // dateScalarMode: 'timestamp', // "timestamp" or "isoDate"
+    }),
+    context: () => ({ em: orm.em }),
   })
 
   apolloServer.applyMiddleware({ app })
@@ -27,4 +31,4 @@ const main = async () => {
   })
 }
 
-main().catch(e => console.error(e))
+main().catch((e) => console.error(e))

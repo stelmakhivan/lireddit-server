@@ -25,5 +25,6 @@ module.exports = {
     'require-jsdoc': 'off',
     'operator-linebreak': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
+    'react/prop-types': 'off',
   },
 }

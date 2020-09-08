@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { ThemeProvider, CSSReset, ColorModeProvider } from '@chakra-ui/core'
+import { ThemeProvider, CSSReset } from '@chakra-ui/core'
 import { createClient, Provider } from 'urql'
 
 const client = createClient({
@@ -12,14 +12,12 @@ const client = createClient({
 
 import theme from '../theme'
 
-function MyApp({ Component, pageProps }) {
+function MyApp({ Component, pageProps }: any) {
   return (
     <Provider value={client}>
       <ThemeProvider theme={theme}>
-        <ColorModeProvider>
-          <CSSReset />
-          <Component {...pageProps} />
-        </ColorModeProvider>
+        <CSSReset />
+        <Component {...pageProps} />
       </ThemeProvider>
     </Provider>
   )

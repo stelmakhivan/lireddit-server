@@ -1,4 +1,13 @@
-import { dedupExchange, fetchExchange, Exchange } from 'urql'
+import {
+  dedupExchange,
+  fetchExchange,
+  Exchange,
+  stringifyVariables,
+} from 'urql'
+import { cacheExchange, Resolver } from '@urql/exchange-graphcache'
+import { pipe, tap } from 'wonka'
+import Router from 'next/router'
+
 import {
   LogoutMutation,
   MeQuery,
@@ -6,9 +15,6 @@ import {
   LoginMutation,
   RegisterMutation,
 } from '../generated/graphql'
-import { cacheExchange } from '@urql/exchange-graphcache'
-import { pipe, tap } from 'wonka'
-import Router from 'next/router'
 
 import { updateQuery } from './updateQuery'
 
@@ -23,6 +29,34 @@ export const errorExchange: Exchange = ({ forward }) => (ops$) => {
   )
 }
 
+const cursorPagination = (): Resolver => {
+  return (_parent, fieldArgs, cache, info) => {
+    const { parentKey: entityKey, fieldName } = info
+
+    const allFields = cache.inspectFields(entityKey)
+
+    const fieldInfos = allFields.filter((info) => info.fieldName === fieldName)
+    const size = fieldInfos.length
+
+    if (size === 0) {
+      return undefined
+    }
+
+    const fieldKey = `${fieldName}(${stringifyVariables(fieldArgs)})`
+    const isItInTheCache = cache.resolveFieldByKey(entityKey, fieldKey)
+    info.partial = !isItInTheCache
+
+    const results: string[] = []
+
+    fieldInfos.forEach((fi) => {
+      const data = cache.resolveFieldByKey(entityKey, fi.fieldKey) as string[]
+      results.push(...data)
+    })
+
+    return results
+  }
+}
+
 export const createUrqlClient = (ssrExchange: any) => {
   return {
     url: 'http://localhost:4000/graphql',
@@ -32,6 +66,11 @@ export const createUrqlClient = (ssrExchange: any) => {
     exchanges: [
       dedupExchange,
       cacheExchange({
+        resolvers: {
+          Query: {
+            posts: cursorPagination(),
+          },
+        },
         updates: {
           Mutation: {
             logout: (_result: LogoutMutation, args, cache, info) => {

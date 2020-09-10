@@ -32,11 +32,11 @@ export class User extends BaseEntity {
   @OneToMany(() => Post, (post) => post.creator)
   posts: Post[]
 
-  @Field(() => String)
-  @CreateDateColumn()
+  @Field()
+  @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date
 
-  @Field(() => String)
-  @UpdateDateColumn()
+  @Field()
+  @UpdateDateColumn({ type: 'timestamp' })
   updatedAt: Date
 }

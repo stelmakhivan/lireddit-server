@@ -43,17 +43,33 @@ const cursorPagination = (): Resolver => {
     }
 
     const fieldKey = `${fieldName}(${stringifyVariables(fieldArgs)})`
-    const isItInTheCache = cache.resolveFieldByKey(entityKey, fieldKey)
+    const isItInTheCache = cache.resolve(
+      cache.resolveFieldByKey(entityKey, fieldKey) as string,
+      'posts'
+    )
     info.partial = !isItInTheCache
+
+    let hasMore = true
 
     const results: string[] = []
 
     fieldInfos.forEach((fi) => {
-      const data = cache.resolveFieldByKey(entityKey, fi.fieldKey) as string[]
+      const key = cache.resolveFieldByKey(entityKey, fi.fieldKey) as string
+      const data = cache.resolve(key, 'posts') as string[]
+      const _hasMore = cache.resolve(key, 'hasMore') as boolean
+
+      if (!_hasMore) {
+        hasMore = _hasMore
+      }
+
       results.push(...data)
     })
 
-    return results
+    return {
+      __typename: 'PaginatedPosts', // https://formidable.com/open-source/urql/docs/graphcache/errors/#8-invalid-resolver-data
+      posts: results,
+      hasMore,
+    }
   }
 }
 
@@ -66,6 +82,9 @@ export const createUrqlClient = (ssrExchange: any) => {
     exchanges: [
       dedupExchange,
       cacheExchange({
+        keys: {
+          PaginatedPosts: () => null,
+        },
         resolvers: {
           Query: {
             posts: cursorPagination(),

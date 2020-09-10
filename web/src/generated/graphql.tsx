@@ -10,8 +10,6 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
-  /** The javascript `Date` as string. Type represents date and time as the ISO Date string. */
-  DateTime: any;
 };
 
 export type Query = {
@@ -45,19 +43,19 @@ export type Post = {
   text: Scalars['String'];
   points: Scalars['String'];
   creatorId: Scalars['Float'];
-  createdAt: Scalars['DateTime'];
-  updatedAt: Scalars['DateTime'];
+  creator: User;
+  createdAt: Scalars['String'];
+  updatedAt: Scalars['String'];
   textSnippet: Scalars['String'];
 };
-
 
 export type User = {
   __typename?: 'User';
   id: Scalars['Int'];
   username: Scalars['String'];
   email: Scalars['String'];
-  createdAt: Scalars['DateTime'];
-  updatedAt: Scalars['DateTime'];
+  createdAt: Scalars['String'];
+  updatedAt: Scalars['String'];
 };
 
 export type Mutation = {

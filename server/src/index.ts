@@ -9,9 +9,11 @@ import { ApolloServer } from 'apollo-server-express'
 import { buildSchema } from 'type-graphql'
 import path from 'path'
 
+import { __prod__, COOKIE_NAME } from './constants'
 import { PostResolver } from './resolvers/post'
 import { UserResolver } from './resolvers/user'
-import { __prod__, COOKIE_NAME } from './constants'
+
+import { Updoot } from './entities/Updoot'
 import { Post } from './entities/Post'
 import { User } from './entities/User'
 
@@ -24,7 +26,7 @@ const main = async () => {
     logging: true,
     synchronize: true,
     migrations: [path.join(__dirname, './migrations/*')],
-    entities: [Post, User],
+    entities: [Post, User, Updoot],
   })
   await connection.runMigrations()
 

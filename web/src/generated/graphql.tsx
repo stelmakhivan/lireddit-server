@@ -27,7 +27,7 @@ export type QueryPostsArgs = {
 
 
 export type QueryPostArgs = {
-  id: Scalars['Float'];
+  id: Scalars['Int'];
 };
 
 export type PaginatedPosts = {
@@ -141,7 +141,7 @@ export type UsernamePasswordInput = {
 
 export type PostSnippetFragment = (
   { __typename?: 'Post' }
-  & Pick<Post, 'id' | 'title' | 'text' | 'textSnippet' | 'creatorId' | 'createdAt' | 'points' | 'voteStatus'>
+  & Pick<Post, 'id' | 'title' | 'textSnippet' | 'creatorId' | 'createdAt' | 'updatedAt' | 'points' | 'voteStatus'>
   & { creator: (
     { __typename?: 'User' }
     & Pick<User, 'username' | 'id'>
@@ -263,6 +263,23 @@ export type MeQuery = (
   )> }
 );
 
+export type PostQueryVariables = Exact<{
+  id: Scalars['Int'];
+}>;
+
+
+export type PostQuery = (
+  { __typename?: 'Query' }
+  & { post?: Maybe<(
+    { __typename?: 'Post' }
+    & Pick<Post, 'id' | 'title' | 'text' | 'creatorId' | 'createdAt' | 'updatedAt' | 'points' | 'voteStatus'>
+    & { creator: (
+      { __typename?: 'User' }
+      & Pick<User, 'username' | 'id'>
+    ) }
+  )> }
+);
+
 export type PostsQueryVariables = Exact<{
   limit: Scalars['Int'];
   cursor?: Maybe<Scalars['String']>;
@@ -285,10 +302,10 @@ export const PostSnippetFragmentDoc = gql`
     fragment PostSnippet on Post {
   id
   title
-  text
   textSnippet
   creatorId
   createdAt
+  updatedAt
   points
   voteStatus
   creator {
@@ -408,6 +425,28 @@ export const MeDocument = gql`
 
 export function useMeQuery(options: Omit<Urql.UseQueryArgs<MeQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<MeQuery>({ query: MeDocument, ...options });
+};
+export const PostDocument = gql`
+    query Post($id: Int!) {
+  post(id: $id) {
+    id
+    title
+    text
+    creatorId
+    createdAt
+    updatedAt
+    points
+    voteStatus
+    creator {
+      username
+      id
+    }
+  }
+}
+    `;
+
+export function usePostQuery(options: Omit<Urql.UseQueryArgs<PostQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<PostQuery>({ query: PostDocument, ...options });
 };
 export const PostsDocument = gql`
     query Posts($limit: Int!, $cursor: String) {

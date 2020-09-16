@@ -1,10 +1,10 @@
 fragment PostSnippet on Post {
   id
   title
-  text
   textSnippet
   creatorId
   createdAt
+  updatedAt
   points
   voteStatus
   creator {

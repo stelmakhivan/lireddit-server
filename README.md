@@ -1,2 +1,2 @@
 # lireddit-server
-Simple full-stack TODO-app with typescript, graphql, next.js and typeorm
+Simple full-stack TODO-like application with typescript, graphql, next.js and typeorm

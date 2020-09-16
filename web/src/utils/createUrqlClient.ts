@@ -18,6 +18,8 @@ import {
   CreatePostMutation,
   VoteMutation,
   VoteMutationVariables,
+  DeletePostMutation,
+  DeletePostMutationVariables,
 } from '../generated/graphql'
 
 import { updateQuery } from './updateQuery'
@@ -106,6 +108,12 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
         },
         updates: {
           Mutation: {
+            deletePost: (_result: DeletePostMutation, args, cache, info) => {
+              cache.invalidate({
+                __typename: 'Post',
+                id: (args as DeletePostMutationVariables).id,
+              })
+            },
             vote: (_result: VoteMutation, args, cache, info) => {
               const { postId, value } = args as VoteMutationVariables
               const data = cache.readFragment(

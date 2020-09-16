@@ -1,4 +1,3 @@
-import { Updoot } from './../entities/Updoot'
 import { getConnection } from 'typeorm'
 import {
   Resolver,
@@ -16,6 +15,7 @@ import {
 } from 'type-graphql'
 
 import { Post } from '../entities/Post'
+import { Updoot } from '../entities/Updoot'
 import { isAuth } from '../middleware/isAuth'
 import { MyContext } from '../types'
 
@@ -192,8 +192,20 @@ export class PostResolver {
   }
 
   @Mutation(() => Boolean)
-  async deletePost(@Arg('id') id: number): Promise<boolean> {
-    await Post.delete(id)
+  @UseMiddleware(isAuth)
+  async deletePost(
+    @Arg('id', () => Int) id: number,
+    @Ctx() { req }: MyContext
+  ): Promise<boolean> {
+    const post = await Post.findOne(id)
+    if (!post) {
+      return false
+    }
+    if (post?.creatorId !== req.session.userId) {
+      throw new Error('not authorized')
+    }
+
+    await Post.delete({ id, creatorId: req.session.userId })
     return true
   }
 }

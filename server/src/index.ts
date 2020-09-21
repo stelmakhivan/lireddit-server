@@ -1,3 +1,4 @@
+import { createUpdootLoader } from './utils/createUpdootLoader';
 import { createUserLoader } from './utils/createUserLoader'
 import 'reflect-metadata'
 import { createConnection } from 'typeorm'
@@ -72,6 +73,7 @@ const main = async () => {
       res,
       redis,
       userLoader: createUserLoader(),
+      updootLoader: createUpdootLoader(),
     }),
   })
 

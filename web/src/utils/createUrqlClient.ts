@@ -5,7 +5,7 @@ import {
   stringifyVariables,
 } from 'urql'
 import gql from 'graphql-tag'
-import { cacheExchange, Resolver } from '@urql/exchange-graphcache'
+import { cacheExchange, Resolver, Cache } from '@urql/exchange-graphcache'
 import { pipe, tap } from 'wonka'
 import Router from 'next/router'
 
@@ -80,6 +80,15 @@ const cursorPagination = (): Resolver => {
   }
 }
 
+function invalidateAllPosts(cache: Cache) {
+  const allFields = cache.inspectFields('Query')
+  const fieldInfos = allFields.filter((info) => info.fieldName === 'posts')
+
+  fieldInfos.forEach((fi) => {
+    cache.invalidate('Query', 'posts', fi.arguments || {})
+  })
+}
+
 export const createUrqlClient = (ssrExchange: any, ctx: any) => {
   let cookie = ''
   if (isServer()) {
@@ -144,14 +153,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
               }
             },
             createPost: (_result: CreatePostMutation, args, cache, info) => {
-              const allFields = cache.inspectFields('Query')
-              const fieldInfos = allFields.filter(
-                (info) => info.fieldName === 'posts'
-              )
-
-              fieldInfos.forEach((fi) => {
-                cache.invalidate('Query', 'posts', fi.arguments || {})
-              })
+              invalidateAllPosts(cache)
             },
             logout: (_result: LogoutMutation, args, cache, info) => {
               updateQuery<LogoutMutation, MeQuery>(
@@ -178,6 +180,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                   }
                 }
               )
+              invalidateAllPosts(cache)
             },
             register: (_result: LoginMutation, args, cache, info) => {
               updateQuery<RegisterMutation, MeQuery>(

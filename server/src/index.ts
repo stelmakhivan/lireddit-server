@@ -1,3 +1,4 @@
+import { createUserLoader } from './utils/createUserLoader'
 import 'reflect-metadata'
 import { createConnection } from 'typeorm'
 import express from 'express'
@@ -66,7 +67,12 @@ const main = async () => {
       validate: false,
       // dateScalarMode: 'timestamp', // "timestamp" or "isoDate"
     }),
-    context: ({ req, res }) => ({ req, res, redis }),
+    context: ({ req, res }) => ({
+      req,
+      res,
+      redis,
+      userLoader: createUserLoader(),
+    }),
   })
 
   apolloServer.applyMiddleware({
